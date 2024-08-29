@@ -79,3 +79,72 @@ def sierpinski_triangle(ax, triangle, depth, **kwargs):
         sierpinski_triangle(ax, t0, depth - 1, **kwargs)
         sierpinski_triangle(ax, t1, depth - 1, **kwargs)
         sierpinski_triangle(ax, t2, depth - 1, **kwargs)
+
+# Class of complex numbers
+class complex:
+
+    def __init__(self, a = 0, b = 0):
+
+        # Set coefficients for (a + b*i) based on constructor
+        self.a = a # real coefficient
+        self.b = b # imaginary coefficient
+
+    def __repr__(self):
+
+        """
+        Defines representation for this object as (a + bi).
+        """
+
+        return f'({self.a:.2f} + {self.b:.2f}i)'
+
+    def __add__(self, c):
+
+        """
+        Adds two complex numbers together as z1 + z2.
+        """
+
+        return complex(self.a + c.a, self.b + c.b)
+
+    def __mul__(self, c):
+
+        """
+        Multiplies two complex numbers together as z1 * z2.
+        """
+
+        return complex(self.a*c.a - self.b*c.b, self.a*c.b + self.b*c.a)
+    
+    def __abs__(self):
+
+        """
+        Returns the magnitude of the complex object.
+        """
+
+        return np.sqrt(self.a**2 + self.b**2)
+    
+    @staticmethod
+    def iterate(z, c, max_iter = 100, threshold = 5):
+
+        """
+        For a complex number z, performs the z -> z**2 + c
+        transformation for n_iter iterations, and determines whether
+        the number converges or diverges based on a comparison
+        between the original and final magnitude.
+        """
+
+        # Compute the initial magnitude
+        init_mag = abs(z)
+
+        # Loop over iterations
+        for i in range(max_iter):
+            
+            if abs(z) > threshold:
+                return i
+            
+            z = z*z + c
+
+        return 1
+        # return -1 if abs(z) > abs(c) else 1
+    
+        # Return a 0 if the transformation converges to a value
+        # below the threshold, otherwise give the magnitude
+        return abs(z) if abs(z) > threshold else 1
