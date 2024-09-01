@@ -127,24 +127,19 @@ class complex:
         """
         For a complex number z, performs the z -> z**2 + c
         transformation for n_iter iterations, and determines whether
-        the number converges or diverges based on a comparison
-        between the original and final magnitude.
+        the number converges or diverges based whether a given
+        value exceeds the provided threshold.
         """
-
-        # Compute the initial magnitude
-        init_mag = abs(z)
 
         # Loop over iterations
         for i in range(max_iter):
             
+            # Exit loop if deemed to diverge
             if abs(z) > threshold:
                 return i
             
+            # Otherwise iterate again
             z = z*z + c
 
+        # Return a small number if convergent
         return 1
-        # return -1 if abs(z) > abs(c) else 1
-    
-        # Return a 0 if the transformation converges to a value
-        # below the threshold, otherwise give the magnitude
-        return abs(z) if abs(z) > threshold else 1
