@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 def koch_snowflake(x, y, n_iter, theta = np.pi/3):
 
@@ -79,6 +80,82 @@ def sierpinski_triangle(ax, triangle, depth, **kwargs):
         sierpinski_triangle(ax, t0, depth - 1, **kwargs)
         sierpinski_triangle(ax, t1, depth - 1, **kwargs)
         sierpinski_triangle(ax, t2, depth - 1, **kwargs)
+
+def n_transform(x, y, z, n):
+
+    """
+    N-th power transformation used to approximate a
+    3D complex ('triplex') number for iterations in
+    generating a mandelbulb.
+    """
+
+    r = np.sqrt(x**2 + y**2 + z**2)
+    theta = np.arctan2(np.sqrt(x**2 + y**2), z)
+    phi = np.arctan2(y, x)
+
+    # Apply transformation to get new coordinates
+    xn = (r**n) * np.sin(n*theta) * np.cos(n*phi)
+    yn = (r**n) * np.sin(n*theta) * np.sin(n*phi)
+    zn = (r**n) * np.cos(n*theta)
+
+    # Return new (x, y, z) separately
+    return xn, yn, zn
+
+def mandelbulb(x, y, z, n, max_iter = 10, threshold = 2):
+
+    """
+    This is a 3D extension of the Mandelbrot set, which
+    approximates a transformation of z -> z^n + c iteratively,
+    until a max_iter loops are reached or the radial size of the
+    output is larger than the threshold (divergent).
+    """
+
+    # Initialise output for (x, y, z) points
+    output = []
+    for xi in tqdm(x):
+        for yi in y:
+            edge = False # outermost point in (x, y) plane
+            for zi in z:
+
+                # Initialise z at the origin and iteration counter
+                x0, y0, z0 = 0, 0, 0
+                n_iter = 0
+
+                # Keep iterating until max_iter or we reach the edge
+                while True:
+
+                    # Apply the nth order transformation
+                    xn, yn, zn = n_transform(x0, y0, z0, n)
+
+                    # Update the (x, y, z) coordinates and iteration counter
+                    x0 = xn + xi
+                    y0 = yn + yi
+                    z0 = zn + zi
+                    n_iter += 1
+
+                    # Break if the boundary threshold is exceeded
+                    # and discard the point
+                    if np.sqrt(xn**2 + yn**2 + zn**2) > threshold:
+
+                        # If this is equivalent to the edge,
+                        # the next point won't be
+                        if edge:
+                            edge = False
+                        break
+
+                    # Break if we reach the maximum iterations
+                    if n_iter > max_iter:
+
+                        # If edge was not yet reached, this must be it;
+                        # reset the flag and store the original point
+                        if not edge:
+                            edge = True
+                            output.append([xi, yi, zi])
+                        break
+                    
+    # Split the output into three arrays for (x, y, z) points
+    output = np.array(output)
+    return output[:, 0], output[:, 1], output[:, 2]
 
 # Class of complex numbers
 class complex:
